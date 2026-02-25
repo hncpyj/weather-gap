@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.hncpyj.weathergap",
+        "sha256_cert_fingerprints": ["5F:73:8F:DF:7A:03:DE:67:18:30:B0:B5:E3:D7:DB:3F:5E:91:39:64:08:3A:89:21:2B:B1:C2:22:29:CE:B4:86"]
+      }
+    }]
