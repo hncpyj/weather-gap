@@ -16,28 +16,47 @@ export default function App() {
 
   // Try to get GPS location on first load
   useEffect(() => {
-    if (!navigator.geolocation) {
-      // Fallback to London
-      setLocation({ lat: 51.5074, lon: -0.1278 })
-      setLocationName('London')
-      return
+    // Use cached location immediately to avoid repeated permission prompts on iOS
+    const cached = localStorage.getItem('lastLocation')
+    if (cached) {
+      const { lat, lon, name } = JSON.parse(cached)
+      setLocation({ lat, lon })
+      setLocationName(name || '')
     }
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        setLocation({ lat: pos.coords.latitude, lon: pos.coords.longitude })
-      },
-      () => {
-        setGpsError(true)
+
+    if (!navigator.geolocation) {
+      if (!cached) {
         setLocation({ lat: 51.5074, lon: -0.1278 })
         setLocationName('London')
+      }
+      return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const lat = pos.coords.latitude
+        const lon = pos.coords.longitude
+        setLocation({ lat, lon })
+        localStorage.setItem('lastLocation', JSON.stringify({ lat, lon, name: '' }))
+      },
+      () => {
+        if (!cached) {
+          setGpsError(true)
+          setLocation({ lat: 51.5074, lon: -0.1278 })
+          setLocationName('London')
+        }
       },
       { timeout: 8000 }
     )
   }, [])
 
   function handleSelectLocation(loc) {
-    setLocation({ lat: loc.lat, lon: loc.lon })
-    setLocationName([loc.name, loc.admin1, loc.country].filter(Boolean).join(', '))
+    const lat = loc.lat
+    const lon = loc.lon
+    const name = [loc.name, loc.admin1, loc.country].filter(Boolean).join(', ')
+    setLocation({ lat, lon })
+    setLocationName(name)
+    localStorage.setItem('lastLocation', JSON.stringify({ lat, lon, name }))
   }
 
   return (
